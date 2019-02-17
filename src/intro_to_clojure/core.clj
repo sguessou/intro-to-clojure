@@ -291,3 +291,37 @@
 ;; Otherwise it returns false.
 (defn simple? [ingredient]
   (= ingredient :butter))
+
+;; Exercise 8
+;; Write functions add-scooped, add-squeezed, and add-simple which conditionally add the respective ingredient types.
+;; You will need to use if and do.
+(defn add-scooped [ingredient]
+  (if (scooped? ingredient)
+    (do
+      (grab :cup)
+      (scoop ingredient)
+      (add-to-bowl)
+      (release))
+    (do
+      (println "This function only works on scooped ingredients. You asked me to scoop" ingredient)
+      :error)))
+
+(defn add-squeezed [ingredient]
+  (if (squeezed? ingredient)
+    (do
+      (grab ingredient)
+      (squeeze)
+      (add-to-bowl))
+    (do
+      (println "This function only works on squeezed ingredients. You asked me to squeeze" ingredient)
+      :error)))
+
+(defn add-simple [ingredient]
+  (if (simple? ingredient)
+    (do
+      (grab ingredient)
+      (add-to-bowl))
+    (do
+      (println "This function only works on simple ingredients. You asked me to add" ingredient)
+      :error)))
+
