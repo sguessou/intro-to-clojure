@@ -256,4 +256,18 @@
     :else
     (println "Unknown ingredient:" ingredient)))
 
+;; Exercise 4
+;; Rewrite bake-cake using the new add function.
+(defn bake-cake []
+  (add :flour)
+  (add :flour)
+  (add :egg)
+  (add :egg)
+  (add :milk)
+  (add :sugar)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 25)
+  (cool-pan))
+
 
