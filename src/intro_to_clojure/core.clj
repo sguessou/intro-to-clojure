@@ -280,5 +280,14 @@
     :else
     false))
 
+;; Exercise 6
+;; Write a function squeezed? which returns true if the given ingredient (the argument) needs squeezing.
+;; Otherwise it returns false.
+(defn squeezed? [ingredient]
+  (cond 
+    (= ingredient :egg)
+    true
+    :else
+    false))
 
 
