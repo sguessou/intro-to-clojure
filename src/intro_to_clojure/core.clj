@@ -227,3 +227,33 @@
   (squeeze)
   (add-to-bowl))
 
+;; Exercise 3
+;; Write a function bake-cake which uses the new add- functions.
+(defn bake-cake []
+  (add-flour)
+  (add-flour)
+  (add-egg)
+  (add-egg)
+  (add-milk)
+  (add-sugar)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 25)
+  (cool-pan))
+
+(defn add [ingredient]
+  (cond
+    (= ingredient :egg)
+    (add-egg)
+    (= ingredient :milk)
+    (add-milk)
+    (= ingredient :flour)
+    (add-milk)
+    (= ingredient :sugar)
+    (add-sugar)
+    (= ingredient :butter)
+    (add-butter)
+    :else
+    (println "Unknown ingredient:" ingredient)))
+
+
