@@ -270,4 +270,15 @@
   (bake-pan 25)
   (cool-pan))
 
+;; Exercise 5
+;; Write a function scooped? which returns true if the given ingredient (the argument) needs scooping.
+;; Otherwise it returns false.
+(defn scooped? [ingredient]
+  (cond 
+    (or (= ingredient :flour) (= ingredient :sugar) (= ingredient :milk) (= ingredient :cocoa))
+    true
+    :else
+    false))
+
+
 
