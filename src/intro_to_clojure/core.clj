@@ -380,6 +380,70 @@
   (bake-pan 25)
   (cool-pan))
 
+(defn add-squeezed
+  ([ingredient amount]
+   (if (squeezed? ingredient)
+     (do
+       (dotimes [i amount]
+         (grab ingredient)
+         (squeeze)
+         (add-to-bowl))
+       :ok)
+     (do
+       (println "This function only works on squeezed ingredients. You asked me to squeeze" ingredient)
+       :error)))
+  ([ingredient]
+   (add-squeezed ingredient 1)))
+
+(defn add-scooped
+  ([ingredient amount]
+   (if (scooped? ingredient)
+     (do
+       (dotimes [i amount]
+         (grab :cup)
+         (scoop ingredient)
+         (add-to-bowl)
+         (release))
+       :ok)
+     (do
+       (println "This function only works on scooped ingredients. You asked me to scoop" ingredient)
+       :error)))
+  ([ingredient]
+   (add-scooped ingredient 1)))
+
+(defn add-simple
+  ([ingredient amount]
+   (if (simple? ingredient)
+     (do
+       (dotimes [i amount]
+         (grab ingredient)
+         (add-to-bowl))
+       :ok)
+     (do
+       (println "This function only works on simple ingredients. You asked me to add" ingredient)
+       :error)))
+  ([ingredient]
+   (add-simple ingredient 1)))
+
+;; Exercise 11
+;; Rewrite add to be variadic and to use the new add-functions
+(defn add 
+  ([ingredient amount]
+   (cond
+     (squeezed? ingredient)
+     (add-squeezed ingredient amount)
+     (scooped? ingredient)
+     (add-scooped ingredient amount)
+     (simple? ingredient)
+     (add-simple ingredient amount)
+     :else
+     (do
+       (println "I do not know the ingredient" ingredient))))
+  ([ingredient]
+   (add ingredient 1)))
+
+
+
 
 
 
