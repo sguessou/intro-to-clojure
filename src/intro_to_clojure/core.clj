@@ -442,6 +442,20 @@
   ([ingredient]
    (add ingredient 1)))
 
+;; Exercise 12
+;; Rewrite bake-cake to use the new add function.
+(defn bake-cake []
+  (add :flour 2)
+  (add :egg 2)
+  (add :milk)
+  (add :sugar)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 25)
+  (cool-pan))
+
+
+
 
 
 
