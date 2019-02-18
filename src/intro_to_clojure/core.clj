@@ -325,3 +325,49 @@
       (println "This function only works on simple ingredients. You asked me to add" ingredient)
       :error)))
 
+(defn add [ingredient]
+  (cond
+    (squeezed? ingredient)
+    (add-squeezed ingredient)
+    (scooped? ingredient)
+    (add-scooped ingredient)
+    (simple? ingredient)
+    (add-simple ingredient)
+    :else
+    (do
+      (println "I do not know the ingredient" ingredient))))
+
+(defn add-eggs [n]
+  (dotimes [e n]
+    (add-egg))
+  :ok)
+
+;; Exercise 9
+;; Write the following functions using dotimes.
+;; add-flour-cups
+;; add-sugar-cups
+;; add-milk-cups
+;; add-butters
+(defn add-flour-cups [n]
+  (dotimes [e n]
+    (add-flour))
+  :ok)
+
+(defn add-sugar-cups [n]
+  (dotimes [e n]
+    (add-sugar))
+  :ok)
+
+(defn add-milk-cups [n]
+  (dotimes [e n]
+    (add-milk))
+  :ok)
+
+(defn add-butters [n]
+  (dotimes [e n]
+    (add-butter))
+  :ok)
+
+
+
+
