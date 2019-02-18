@@ -368,6 +368,18 @@
     (add-butter))
   :ok)
 
+;; Exercise 10
+;; Rewrite bake-cake to use the new functions
+(defn bake-cake []
+  (add-flour-cups 2)
+  (add-eggs 2)
+  (add-milk-cups 1)
+  (add-sugar-cups 1)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 25)
+  (cool-pan))
+
 
 
 
