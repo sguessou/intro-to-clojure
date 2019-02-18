@@ -454,6 +454,18 @@
   (bake-pan 25)
   (cool-pan))
 
+;; Exercise 13
+;; Write a function bake-cookies to make it have a structure similar to the recipe.
+(defn bake-cookies []
+  (add :egg 1)
+  (add :flour 1)
+  (add :sugar 1)
+  (add :butter)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 30)
+  (cool-pan))
+
 
 
 
