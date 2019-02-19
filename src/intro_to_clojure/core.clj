@@ -278,4 +278,20 @@
 (defn from-fridge? [ingredient]
   (contains? fridge-ingredients ingredient))
 
+;; D2 - Exercise 2
+;; Refactor scooped?, squeezed?, and simple? to use this new idiom.
+(def scooped-ingredients #{:flour :sugar :milk :cocoa})
+
+(defn scooped? [ingredient]
+  (contains? scooped-ingredients ingredient))
+
+(def squeezed-ingredients #{:egg})
+
+(defn squeezed? [ingredient]
+  (contains? squeezed-ingredients ingredient))
+
+(def simple-ingredient #{:butter})
+
+(defn simple? [ingredient]
+  (contains? simple-ingredient ingredient))
 
