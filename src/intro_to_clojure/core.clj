@@ -334,9 +334,71 @@
      :else
      (error "Unknown ingredient" ingredient))))
 
+(def ingredients {:flour 10
+                  :egg 7
+                  :sugar 12
+                  :milk 3
+                  :butter 6})
+
+(defn load-up-amount [ingredient amount]
+  (dotimes [i amount]
+    (load-up ingredient)))
+
+(defn unload-amount [ingredient amount]
+  (dotimes [i amount]
+    (unload ingredient)))
+
+(def locations {:pantry pantry-ingredients
+                :fridge fridge-ingredients})
+
+(keys locations)
+
+(defn fetch-list [shopping]
+  (doseq [location (keys locations)]
+    (go-to location)
+    (doseq [ingredient (get locations location)]
+      (load-up-amount ingredient (get shopping ingredient 0))))
+  (go-to :prep-area)
+  (doseq [location (keys locations)]
+    (doseq [ingredient (get locations location)]
+      (unload-amount ingredient (get shopping ingredient 0)))))
+
+(def orders {:orderid 123
+             :address "323 Robot Ln"
+             :items {:cake 14
+                     :cookies 12}})
+(get orders :items)
+(def receipts {:orderid 123
+               :address "323 Robot Ln"
+               :rackids [:cooling-rack-345
+                         :cooling-rack-675]})
+
+;; D2, Ex 4
+;; Write a function day-at-the-bakery which will represent what X5 does at the bakery.
+;; Requirements: Get the orders + Bake items + Send receipts to the delivery bot
+(defn day-at-the-bakery []
+  (let [orders (get-morning-orders)]
+    (doseq [order orders]
+      (let [items (get order :items)]
+        (dotimes [i (get items :cake 0)]
+          (fetch-list {:egg 2 
+                       :flour 2 
+                       :milk 1 
+                       :sugar 1})
+          (let [rack-id (bake-cake)]
+            (delivery {:orderid (get order :orderid)
+                       :address (get order :address)
+                       :rackids [rack-id]})))
+        (dotimes [i (get items :cookies 0)]
+          (fetch-list {:egg 1
+                       :flour 1
+                       :sugar 1
+                       :butter 1})
+          (let [rack-id (bake-cookies)]
+            (delivery {:orderid (get order :orderid)
+                       :address (get order :address)
+                       :rackids [rack-id]})))))))
+
 (defn -main []
-  (fetch-ingredient :flour 12)
-  (fetch-ingredient :egg 65)
-  (fetch-ingredient :milk 48)
-  (fetch-ingredient :sugar 35)
+  (day-at-the-bakery)
   (status))
