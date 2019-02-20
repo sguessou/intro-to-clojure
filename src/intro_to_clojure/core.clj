@@ -399,6 +399,11 @@
                        :address (get order :address)
                        :rackids [rack-id]})))))))
 
+;; D2, Ex 6
+;; Write a function add-ingredients which takes two ingredient lists and adds them together using merge-with.
+(defn add-ingredients [list1 list2]
+  (merge-with + list1 list2))
+
 (defn -main []
   (day-at-the-bakery)
   (status))
