@@ -428,15 +428,24 @@
 ;; Write a function order->ingredients which takes an order and returns an ingredient list for everything needed in that order.
 ;; You should use add-ingredients and multiply-ingredients.
 (defn order->ingredients [order]
-  (let [items (get order :items 0)
+  (let [items (get order :items)
         ingredients-cake (multiply-ingredients (get items :cake 0) cake-ingredients)
-        ingredients-cookies (multiply-ingredients (get items :cookies 0) cookies-ingredients)
-        ingredients (add-ingredients ingredients-cake ingredients-cookies)]
-    ingredients))
+        ingredients-cookies (multiply-ingredients (get items :cookies 0) cookies-ingredients)]
+    (add-ingredients ingredients-cake ingredients-cookies)))
 
 (order->ingredients {:orderid 123 :address "foobar" :items {:cake 10 :cookies 1}})
 
-(merge-with + cookies-ingredients cake-ingredients)
+;; D2, Ex 9
+;; Write a function orders->ingredients that builds a total ingredients list from a list of orders.
+;; You should use for and reduce.
+(defn orders->ingredients [orders]
+  (reduce (fn [result order]
+            (merge-with + result (order->ingredients order)))
+          {}
+          orders))
+
+(orders->ingredients (get-morning-orders))
+
 (defn -main []
   (day-at-the-bakery)
   (status))
