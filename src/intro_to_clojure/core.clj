@@ -411,10 +411,32 @@
   (into {}
         (for [kv ingredient]
           [(first kv) (* (second kv) n)])))
+
+
+(def cookies-ingredients {:egg 1
+                          :flour 1
+                          :sugar 1
+                          :butter 1})
  
 
+(def cake-ingredients {:egg 2 
+                       :flour 2 
+                       :milk 1 
+                       :sugar 1})
 
+;; D2, Ex 8
+;; Write a function order->ingredients which takes an order and returns an ingredient list for everything needed in that order.
+;; You should use add-ingredients and multiply-ingredients.
+(defn order->ingredients [order]
+  (let [items (get order :items 0)
+        ingredients-cake (multiply-ingredients (get items :cake 0) cake-ingredients)
+        ingredients-cookies (multiply-ingredients (get items :cookies 0) cookies-ingredients)
+        ingredients (add-ingredients ingredients-cake ingredients-cookies)]
+    ingredients))
 
+(order->ingredients {:orderid 123 :address "foobar" :items {:cake 10 :cookies 1}})
+
+(merge-with + cookies-ingredients cake-ingredients)
 (defn -main []
   (day-at-the-bakery)
   (status))
