@@ -404,6 +404,17 @@
 (defn add-ingredients [list1 list2]
   (merge-with + list1 list2))
 
+;; D2, Ex 7
+;; Write a function multiply-ingredients that takes a quantity and an ingredient list and returns a quantity and returns a new ingredient list with all the amounts multiplied by the quantity.
+;; Use into and for.
+(defn multiply-ingredients [n ingredient]
+  (into {}
+        (for [kv ingredient]
+          [(first kv) (* (second kv) n)])))
+ 
+
+
+
 (defn -main []
   (day-at-the-bakery)
   (status))
