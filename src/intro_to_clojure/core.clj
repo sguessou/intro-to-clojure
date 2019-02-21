@@ -438,14 +438,38 @@
 ;; D2, Ex 9
 ;; Write a function orders->ingredients that builds a total ingredients list from a list of orders.
 ;; You should use for and reduce.
-(defn orders->ingredients [orders]
+(defn orders->ingredients-check [orders]
   (reduce (fn [result order]
             (merge-with + result (order->ingredients order)))
           {}
           orders))
+
+(defn orders->ingredients [orders]
+  (reduce add-ingredients
+          {}
+          (for [order orders]
+            (order->ingredients order))))
 
 (orders->ingredients (get-morning-orders))
 
 (defn -main []
   (day-at-the-bakery)
   (status))
+
+;; D2, Ex 10
+;; Rework day-at-the-bakery to make a single shopping trip before starting to bake
+(defn day-at-the-bakery []
+  (fetch-list (orders->ingredients (get-morning-orders)))
+  (let [orders (get-morning-orders)]
+    (doseq [order orders]
+      (let [items (get order :items)]
+        (dotimes [i (get items :cake 0)]
+          (let [rack-id (bake-cake)]
+            (delivery {:orderid (get order :orderid)
+                       :address (get order :address)
+                       :rackids [rack-id]})))
+        (dotimes [i (get items :cookies 0)]
+          (let [rack-id (bake-cookies)]
+            (delivery {:orderid (get order :orderid)
+                       :address (get order :address)
+                       :rackids [rack-id]})))))))
