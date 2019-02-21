@@ -79,24 +79,27 @@
 ;; Exercise 5
 ;; Write a function scooped? which returns true if the given ingredient (the argument) needs scooping.
 ;; Otherwise it returns false.
+(def scooped-ingredients #{:floor :sugar :milk})
+
 (defn scooped? [ingredient]
-  (cond 
-    (or (= ingredient :flour) (= ingredient :sugar) (= ingredient :milk) (= ingredient :cocoa))
-    true
-    :else
-    false))
+  (contains? scooped-ingredients ingredient))
 
 ;; Exercise 6
 ;; Write a function squeezed? which returns true if the given ingredient (the argument) needs squeezing.
 ;; Otherwise it returns false.
+(def squeezed-ingredients #{:egg})
+
 (defn squeezed? [ingredient] 
-  (= ingredient :egg))
+  (contains? squeezed-ingredients ingredient))
 
 ;; Exercise 7
 ;; Write a function simple? which returns true if the given ingredient (the argument) can be added without scooping or squeezing (basically butter).
 ;; Otherwise it returns false.
-(defn simple? [ingredient]
-  (= ingredient :butter))
+(def simple-ingredients #{:butter})
+
+(defn simple? [ingredient] 
+  (contains? simple-ingredients ingredient))
+
 
 ;; Exercise 8
 ;; Write functions add-scooped, add-squeezed, and add-simple which conditionally add the respective ingredient types.
@@ -473,3 +476,41 @@
             (delivery {:orderid (get order :orderid)
                        :address (get order :address)
                        :rackids [rack-id]})))))))
+
+;; D2, Ex 11
+;; Rework day-at-bakery to make X5 deliver one receipt per order (instead of per item).
+(defn day-at-the-bakery []
+  (fetch-list (orders->ingredients (get-morning-orders)))
+  (let [orders (get-morning-orders)] 
+    (doseq [order orders]
+      (let [items (get order :items)
+            rackids (for [i (range (get items :cake 0))]
+                      (bake-cake))]))))
+
+(delivery {:orderid (get order :orderid)
+           :address (get order :address)
+           :rackids [rack-id]})
+
+
+(defn bake [item]
+  (cond
+    (= item :cake)
+    (bake-cake)
+    (= item :cookies)
+    (bake-cookies)
+    :else
+    (error "I don't know how to bake" item)))
+
+(defn day-at-the-bakery []
+  (let [orders (get-morning-orders)
+        ingredients (orders->ingredients orders)]
+    (fetch-list ingredients)
+    (doseq [order orders]
+      (let [items (get order :items)
+            racks (for [kv items
+                        i (range (second kv))]
+                    (bake (first kv)))]
+        (delivery {:orderid (get order :orderid)
+                   :address (get order :address)
+                   :rackids [racks]})))))
+
