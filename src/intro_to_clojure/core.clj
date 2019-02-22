@@ -1,11 +1,32 @@
 (ns intro-to-clojure.core
   (:require [bakery.core :refer :all]))
 
-(defn error [& rs]
-  (apply println rs)
+(defn error [& args]
+  (apply println args)
   :error)
 
-;; Exercise 2
+(def baking {:recipes {:cake {:ingredients {:egg 2
+                                            :flour 2
+                                            :sugar 1
+                                            :milk 1}
+                              :steps [[:add :all]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 25]
+                                      [:cool]]}}})
+
+;; Exercise 1
+;; Write a function perform that takes a vector as argument. If the first element of the vector is :cool, run cool-pan.
+(defn perform [action]
+  (when (= (first action) :cool)
+    (cool-pan)))
+
+
+(defn add-egg []
+  (grab :egg)
+  (squeeze)
+  (add-to-bowl))
+
 (defn add-flour []
   (grab :cup)
   (scoop :flour)
@@ -28,137 +49,29 @@
   (grab :butter)
   (add-to-bowl))
 
-(defn add-egg []
-  (grab :egg)
-  (squeeze)
-  (add-to-bowl))
-
-;; Exercise 3
-;; Write a function bake-cake which uses the new add- functions.
-(defn bake-cake []
-  (add-flour)
-  (add-flour)
-  (add-egg)
-  (add-egg)
-  (add-milk)
-  (add-sugar)
-  (mix)
-  (pour-into-pan)
-  (bake-pan 25)
-  (cool-pan))
-
-(defn add [ingredient]
-  (cond
-    (= ingredient :egg)
-    (add-egg)
-    (= ingredient :milk)
-    (add-milk)
-    (= ingredient :flour)
-    (add-milk)
-    (= ingredient :sugar)
-    (add-sugar)
-    (= ingredient :butter)
-    (add-butter)
-    :else
-    (println "Unknown ingredient:" ingredient)))
-
-;; Exercise 4
-;; Rewrite bake-cake using the new add function.
-(defn bake-cake []
-  (add :flour)
-  (add :flour)
-  (add :egg)
-  (add :egg)
-  (add :milk)
-  (add :sugar)
-  (mix)
-  (pour-into-pan)
-  (bake-pan 25)
-  (cool-pan))
-
-;; Exercise 5
-;; Write a function scooped? which returns true if the given ingredient (the argument) needs scooping.
-;; Otherwise it returns false.
-(def scooped-ingredients #{:floor :sugar :milk})
+(def scooped-ingredients #{:flour :sugar :milk :cocoa})
 
 (defn scooped? [ingredient]
   (contains? scooped-ingredients ingredient))
 
-;; Exercise 6
-;; Write a function squeezed? which returns true if the given ingredient (the argument) needs squeezing.
-;; Otherwise it returns false.
 (def squeezed-ingredients #{:egg})
 
-(defn squeezed? [ingredient] 
+(defn squeezed? [ingredient]
   (contains? squeezed-ingredients ingredient))
 
-;; Exercise 7
-;; Write a function simple? which returns true if the given ingredient (the argument) can be added without scooping or squeezing (basically butter).
-;; Otherwise it returns false.
 (def simple-ingredients #{:butter})
 
-(defn simple? [ingredient] 
+(defn simple? [ingredient]
   (contains? simple-ingredients ingredient))
-
-
-;; Exercise 8
-;; Write functions add-scooped, add-squeezed, and add-simple which conditionally add the respective ingredient types.
-;; You will need to use if and do.
-(defn add-scooped [ingredient]
-  (if (scooped? ingredient)
-    (do
-      (grab :cup)
-      (scoop ingredient)
-      (add-to-bowl)
-      (release))
-    (error "This function only works on scooped ingredients. You asked me to scoop" ingredient)))
-
-(defn add-squeezed [ingredient]
-  (if (squeezed? ingredient)
-    (do
-      (grab ingredient)
-      (squeeze)
-      (add-to-bowl))
-    (error "This function only works on squeezed ingredients. You asked me to squeeze" ingredient)))
-
-(defn add-simple [ingredient]
-  (if (simple? ingredient)
-    (do
-      (grab ingredient)
-      (add-to-bowl))
-    (error "This function only works on simple ingredients. You asked me to add" ingredient)))
-
-(defn add [ingredient]
-  (cond
-    (squeezed? ingredient)
-    (add-squeezed ingredient)
-    (scooped? ingredient)
-    (add-scooped ingredient)
-    (simple? ingredient)
-    (add-simple ingredient)
-    :else
-    (do
-      (println "I do not know the ingredient" ingredient))))
 
 (defn add-eggs [n]
   (dotimes [e n]
     (add-egg))
   :ok)
 
-;; Exercise 9
-;; Write the following functions using dotimes.
-;; add-flour-cups
-;; add-sugar-cups
-;; add-milk-cups
-;; add-butters
 (defn add-flour-cups [n]
   (dotimes [e n]
     (add-flour))
-  :ok)
-
-(defn add-sugar-cups [n]
-  (dotimes [e n]
-    (add-sugar))
   :ok)
 
 (defn add-milk-cups [n]
@@ -166,22 +79,15 @@
     (add-milk))
   :ok)
 
+(defn add-sugar-cups [n]
+  (dotimes [e n]
+    (add-sugar))
+  :ok)
+
 (defn add-butters [n]
   (dotimes [e n]
     (add-butter))
   :ok)
-
-;; Exercise 10
-;; Rewrite bake-cake to use the new functions
-(defn bake-cake []
-  (add-flour-cups 2)
-  (add-eggs 2)
-  (add-milk-cups 1)
-  (add-sugar-cups 1)
-  (mix)
-  (pour-into-pan)
-  (bake-pan 25)
-  (cool-pan))
 
 (defn add-squeezed
   ([ingredient amount]
@@ -222,9 +128,9 @@
   ([ingredient]
    (add-simple ingredient 1)))
 
-;; Exercise 11
-;; Rewrite add to be variadic and to use the new add-functions
-(defn add 
+(defn add
+  ([ingredient]
+   (add ingredient 1))
   ([ingredient amount]
    (cond
      (squeezed? ingredient)
@@ -234,114 +140,59 @@
      (simple? ingredient)
      (add-simple ingredient amount)
      :else
-     (do
-       (println "I do not know the ingredient" ingredient))))
-  ([ingredient]
-   (add ingredient 1)))
+     (error "I do not know the ingredient" ingredient))))
 
-;; Exercise 12
-;; Rewrite bake-cake to use the new add function.
-(defn bake-cake []
-  (add :flour 2)
-  (add :egg 2)
-  (add :milk)
-  (add :sugar)
-  (mix)
-  (pour-into-pan)
-  (bake-pan 25)
-  (cool-pan))
-
-;; Exercise 13
-;; Write a function bake-cookies to make it have a structure similar to the recipe.
-(defn bake-cookies []
-  (add :egg 1)
-  (add :flour 1)
-  (add :sugar 1)
-  (add :butter)
-  (mix)
-  (pour-into-pan)
-  (bake-pan 30)
-  (cool-pan))
-
-(def pantry-ingredients #{:flour :sugar})
+(def pantry-ingredients #{:flour :sugar :cocoa})
 
 (defn from-pantry? [ingredient]
   (contains? pantry-ingredients ingredient))
 
-(from-pantry? :flour)
-
-;; Day 2, Exercise 1
-;; Write fridge-ingredients and from-fridge? using this new idiom.
-(def fridge-ingredients #{:milk :butter :egg})
+(def fridge-ingredients #{:milk :egg :butter})
 
 (defn from-fridge? [ingredient]
   (contains? fridge-ingredients ingredient))
 
-;; D2 - Exercise 2
-;; Refactor scooped?, squeezed?, and simple? to use this new idiom.
-(def scooped-ingredients #{:flour :sugar :milk :cocoa})
-
-(defn scooped? [ingredient]
-  (contains? scooped-ingredients ingredient))
-
-(def squeezed-ingredients #{:egg})
-
-(defn squeezed? [ingredient]
-  (contains? squeezed-ingredients ingredient))
-
-(def simple-ingredient #{:butter})
-
-(defn simple? [ingredient]
-  (contains? simple-ingredient ingredient))
-
 (defn fetch-from-pantry
   ([ingredient]
-   (fetch-from-pantry ingredient 1))
+    (fetch-from-pantry ingredient 1))
   ([ingredient amount]
-   (if (from-pantry? ingredient)
-     (do
-       (go-to :pantry)
-       (dotimes [i amount]
-         (load-up ingredient))
-       (go-to :prep-area)
-       (dotimes [i amount]
-         (unload ingredient)))
-     (error "This function only works on ingredients that are stored in the pantry. You asked me to fetch" ingredient))))
+    (if (from-pantry? ingredient)
+      (do
+        (go-to :pantry)
+        (dotimes [i amount]
+          (load-up ingredient))
+        (go-to :prep-area)
+        (dotimes [i amount]
+          (unload ingredient)))
+      (error "This function only works on ingredients that are stored in the pantry. You asked me to fetch" ingredient))))
 
 (defn fetch-from-fridge
   ([ingredient]
-   (fetch-from-fridge ingredient 1))
+    (fetch-from-fridge ingredient 1))
   ([ingredient amount]
-   (if (from-fridge? ingredient)
-     (do
-       (go-to :fridge)
-       (dotimes [i amount]
-         (load-up ingredient))
-       (go-to :prep-area)
-       (dotimes [i amount]
-         (unload ingredient)))
-     (error "This function only works on ingredients that are stored in the fridge. You asked me to fetch" ingredient))))
+    (if (from-fridge? ingredient)
+      (do
+        (go-to :fridge)
+        (dotimes [i amount]
+          (load-up ingredient))
+        (go-to :prep-area)
+        (dotimes [i amount]
+          (unload ingredient)))
+      (error "This function only works on ingredients that are stored in the fridge. You asked me to fetch" ingredient))))
 
-;; D2 - Ex 3
-;; Write a function fetch-ingredient which takes the name of an ingredient and an amount and fetches that amount of the ingredient.
-;; Also make it accept just the ingredient, with a default amount of 1.
 (defn fetch-ingredient
   ([ingredient]
-   (fetch-ingredient ingredient 1))
+    (fetch-ingredient ingredient 1))
   ([ingredient amount]
-   (cond
-     (from-fridge? ingredient)
-     (fetch-from-fridge ingredient amount)
-     (from-pantry? ingredient)
-     (fetch-from-pantry ingredient amount)
-     :else
-     (error "Unknown ingredient" ingredient))))
+    (cond
+      (from-fridge? ingredient)
+      (fetch-from-fridge ingredient amount)
 
-(def ingredients {:flour 10
-                  :egg 7
-                  :sugar 12
-                  :milk 3
-                  :butter 6})
+      (from-pantry? ingredient)
+      (fetch-from-pantry ingredient amount)
+
+      :else
+      (error "I don't know where to get" ingredient))))
 
 (defn load-up-amount [ingredient amount]
   (dotimes [i amount]
@@ -354,143 +205,61 @@
 (def locations {:pantry pantry-ingredients
                 :fridge fridge-ingredients})
 
-(keys locations)
-
-(defn fetch-list [shopping]
+(defn fetch-list [shopping-list]
   (doseq [location (keys locations)]
     (go-to location)
     (doseq [ingredient (get locations location)]
-      (load-up-amount ingredient (get shopping ingredient 0))))
+      (load-up-amount ingredient (get shopping-list ingredient 0))))
+
   (go-to :prep-area)
   (doseq [location (keys locations)]
     (doseq [ingredient (get locations location)]
-      (unload-amount ingredient (get shopping ingredient 0)))))
+      (unload-amount ingredient (get shopping-list ingredient 0)))))
 
-(def orders {:orderid 123
-             :address "323 Robot Ln"
-             :items {:cake 14
-                     :cookies 12}})
-(get orders :items)
-(def receipts {:orderid 123
-               :address "323 Robot Ln"
-               :rackids [:cooling-rack-345
-                         :cooling-rack-675]})
+(defn add-ingredients [a b]
+  (merge-with + a b))
 
-;; D2, Ex 4
-;; Write a function day-at-the-bakery which will represent what X5 does at the bakery.
-;; Requirements: Get the orders + Bake items + Send receipts to the delivery bot
-(defn day-at-the-bakery []
-  (let [orders (get-morning-orders)]
-    (doseq [order orders]
-      (let [items (get order :items)]
-        (dotimes [i (get items :cake 0)]
-          (fetch-list {:egg 2 
-                       :flour 2 
-                       :milk 1 
-                       :sugar 1})
-          (let [rack-id (bake-cake)]
-            (delivery {:orderid (get order :orderid)
-                       :address (get order :address)
-                       :rackids [rack-id]})))
-        (dotimes [i (get items :cookies 0)]
-          (fetch-list {:egg 1
-                       :flour 1
-                       :sugar 1
-                       :butter 1})
-          (let [rack-id (bake-cookies)]
-            (delivery {:orderid (get order :orderid)
-                       :address (get order :address)
-                       :rackids [rack-id]})))))))
-
-;; D2, Ex 6
-;; Write a function add-ingredients which takes two ingredient lists and adds them together using merge-with.
-(defn add-ingredients [list1 list2]
-  (merge-with + list1 list2))
-
-;; D2, Ex 7
-;; Write a function multiply-ingredients that takes a quantity and an ingredient list and returns a quantity and returns a new ingredient list with all the amounts multiplied by the quantity.
-;; Use into and for.
-(defn multiply-ingredients [n ingredient]
+(defn multiply-ingredients [n ingredients]
   (into {}
-        (for [kv ingredient]
-          [(first kv) (* (second kv) n)])))
+    (for [kv ingredients]
+      [(first kv) (* n (second kv))])))
 
-
-(def cookies-ingredients {:egg 1
-                          :flour 1
-                          :sugar 1
-                          :butter 1})
- 
-
-(def cake-ingredients {:egg 2 
-                       :flour 2 
-                       :milk 1 
-                       :sugar 1})
-
-;; D2, Ex 8
-;; Write a function order->ingredients which takes an order and returns an ingredient list for everything needed in that order.
-;; You should use add-ingredients and multiply-ingredients.
 (defn order->ingredients [order]
-  (let [items (get order :items)
-        ingredients-cake (multiply-ingredients (get items :cake 0) cake-ingredients)
-        ingredients-cookies (multiply-ingredients (get items :cookies 0) cookies-ingredients)]
-    (add-ingredients ingredients-cake ingredients-cookies)))
-
-(order->ingredients {:orderid 123 :address "foobar" :items {:cake 10 :cookies 1}})
-
-;; D2, Ex 9
-;; Write a function orders->ingredients that builds a total ingredients list from a list of orders.
-;; You should use for and reduce.
-(defn orders->ingredients-check [orders]
-  (reduce (fn [result order]
-            (merge-with + result (order->ingredients order)))
-          {}
-          orders))
+  (let [items (get order :items)]
+    (add-ingredients
+      (multiply-ingredients (get items :cake 0) {:egg 2
+                                                 :flour 2
+                                                 :sugar 1
+                                                 :milk 1})
+      (multiply-ingredients (get items :cookie 0) {:egg 1
+                                                   :flour 1
+                                                   :butter 1
+                                                   :sugar 1}))))
 
 (defn orders->ingredients [orders]
-  (reduce add-ingredients
-          {}
-          (for [order orders]
-            (order->ingredients order))))
+  (reduce add-ingredients {}
+    (for [order orders]
+      (order->ingredients order))))
 
-(orders->ingredients (get-morning-orders))
+(defn bake-cake []
+  (add :egg 2)
+  (add :flour 2)
+  (add :milk 1)
+  (add :sugar 1)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 25)
+  (cool-pan))
 
-(defn -main []
-  (day-at-the-bakery)
-  (status))
-
-;; D2, Ex 10
-;; Rework day-at-the-bakery to make a single shopping trip before starting to bake
-(defn day-at-the-bakery []
-  (fetch-list (orders->ingredients (get-morning-orders)))
-  (let [orders (get-morning-orders)]
-    (doseq [order orders]
-      (let [items (get order :items)]
-        (dotimes [i (get items :cake 0)]
-          (let [rack-id (bake-cake)]
-            (delivery {:orderid (get order :orderid)
-                       :address (get order :address)
-                       :rackids [rack-id]})))
-        (dotimes [i (get items :cookies 0)]
-          (let [rack-id (bake-cookies)]
-            (delivery {:orderid (get order :orderid)
-                       :address (get order :address)
-                       :rackids [rack-id]})))))))
-
-;; D2, Ex 11
-;; Rework day-at-bakery to make X5 deliver one receipt per order (instead of per item).
-(defn day-at-the-bakery []
-  (fetch-list (orders->ingredients (get-morning-orders)))
-  (let [orders (get-morning-orders)] 
-    (doseq [order orders]
-      (let [items (get order :items)
-            rackids (for [i (range (get items :cake 0))]
-                      (bake-cake))]))))
-
-(delivery {:orderid (get order :orderid)
-           :address (get order :address)
-           :rackids [rack-id]})
-
+(defn bake-cookies []
+  (add :egg 1)
+  (add :flour 1)
+  (add :sugar 1)
+  (add :butter 1)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 30)
+  (cool-pan))
 
 (defn bake [item]
   (cond
@@ -509,8 +278,25 @@
       (let [items (get order :items)
             racks (for [kv items
                         i (range (second kv))]
-                    (bake (first kv)))]
-        (delivery {:orderid (get order :orderid)
-                   :address (get order :address)
-                   :rackids [racks]})))))
+                    (bake (first kv)))
+            receipt {:orderid (get order :orderid)
+                     :address (get order :address)
+                     :rackids racks}]
+        (delivery receipt)))))
+
+(defn bake-brownies []
+  (add :sugar 1)
+  (add :cocoa 2)
+  (add :butter 2)
+  (mix)
+  (add :milk 1)
+  (add :flour 2)
+  (add :egg 2)
+  (mix)
+  (pour-into-pan)
+  (bake-pan 35)
+  (cool-pan))
+
+(defn -main []
+  (day-at-the-bakery))
 
