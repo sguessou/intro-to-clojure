@@ -24,7 +24,7 @@
 
 ;; Ex 2
 ;; Modify perform to also call mix if the first element of the vector is :mix.
-(defn perform [step]
+(defn perform_2 [step]
   (let [action (first step)]
     (cond
       (= action :cool)
@@ -35,6 +35,23 @@
       (error "Unknown action" action))))
 
 ;; Ex 3
+;; Modify perform to pour the bowl into the pan when the first element is :pour. 
+;; Also, perform should bake when the first element is :bake.
+;; The number of minutes will be the second element.
+(defn perform [step]
+  (let [action (first step)]
+    (cond
+      (= action :cool)
+      (cool-pan)
+      (= action :mix)
+      (mix)
+      (= action :pour)
+      (pour-into-pan)
+      (= action :bake)
+      (bake-pan (second step))
+      :else
+      (error "Unknown action" action))))
+ 
 
 (defn add-egg []
   (grab :egg)
