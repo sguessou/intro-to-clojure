@@ -17,10 +17,24 @@
 
 ;; Exercise 1
 ;; Write a function perform that takes a vector as argument. If the first element of the vector is :cool, run cool-pan.
-(defn perform [action]
+
+(defn perform_1 [action]
   (when (= (first action) :cool)
     (cool-pan)))
 
+;; Ex 2
+;; Modify perform to also call mix if the first element of the vector is :mix.
+(defn perform [step]
+  (let [action (first step)]
+    (cond
+      (= action :cool)
+      (cool-pan)
+      (= action :mix)
+      (mix)
+      :else
+      (error "Unknown action" action))))
+
+;; Ex 3
 
 (defn add-egg []
   (grab :egg)
