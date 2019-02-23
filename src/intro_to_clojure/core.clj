@@ -38,7 +38,7 @@
 ;; Modify perform to pour the bowl into the pan when the first element is :pour. 
 ;; Also, perform should bake when the first element is :bake.
 ;; The number of minutes will be the second element.
-(defn perform [step]
+(defn perform_3 [step]
   (let [action (first step)]
     (cond
       (= action :cool)
@@ -51,7 +51,48 @@
       (bake-pan (second step))
       :else
       (error "Unknown action" action))))
- 
+
+(def baking {:recipes {:cake {:ingredients {:egg 2
+                                            :flour 2
+                                            :sugar 1
+                                            :milk 1}
+                              :steps [[:add :all]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 25]
+                                      [:cool]]}}}) 
+;; Ex 4 
+;; Modify perform to add ingredients to the bowl if the first element of the vector is :add.
+;; How it operates depends on the rest of the arguments.
+;; If there is one argument and it is the keyword :all, then add all ingredients in the recipe.
+;; If there is one argument and it is the name of an ingredient in the recipe, add the amount specified in the ingredient list.
+;; If there are two arguments, the first is the name of the ingredient and the second is the amount to add.
+(defn perform [ingredients step]
+  (cond
+    (= (first step) :cool)
+    (cool-pan)
+    (= (first step) :mix)
+    (mix)
+    (= (first step) :pour)
+    (pour-into-pan)
+    (= (first step) :bake)
+    (bake-pan (second step))
+    (= (first step) :add)
+    (cond
+      (and (= (count step) 2)
+           (= (second step) :all))
+      (doseq [kv ingredients]
+        (add (first kv) (second kv)))
+      (and (= (count step) 2)
+           (contains? ingredients (second step)))
+      (add (second step) (get ingredients (second step)))
+      (= (count step) 3)
+      (add (second step) (nth step 2))) 
+    :else
+    (error "Unknown action" (first step))))
+
+
+
 
 (defn add-egg []
   (grab :egg)
