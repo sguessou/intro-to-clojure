@@ -5,6 +5,8 @@
   (apply println args)
   :error)
 
+;; Exercise 7
+;; Add a recipe for every baked good X5 has learned so far.
 (def baking {:recipes {:cake {:ingredients {:egg 2
                                             :flour 2
                                             :sugar 1
@@ -13,7 +15,33 @@
                                       [:mix]
                                       [:pour]
                                       [:bake 25]
-                                      [:cool]]}}})
+                                      [:cool]]}
+                       {:cookies {:ingredients {:egg 1
+                                               :flour 1
+                                               :sugar 1
+                                               :butter 1}
+                              :steps [[:add :all]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 30]
+                                      [:cool]]}}
+                       {:brownies {:ingredients {:egg 2
+                                                :flour 2
+                                                :sugar 1
+                                                :cocoa 2
+                                                :milk 1
+                                                :butter 2}
+                              :steps [[:add :butter]
+                                      [:add :sugar]
+                                      [:add :cocoa]
+                                      [:mix]
+                                      [:add :flour]
+                                      [:add :egg]
+                                      [:add :milk]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 35]
+                                      [:cool]]}}}})
 
 ;; Exercise 1
 ;; Write a function perform that takes a vector as argument. If the first element of the vector is :cool, run cool-pan.
