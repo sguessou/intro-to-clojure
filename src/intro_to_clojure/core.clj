@@ -94,9 +94,21 @@
 ;; Exercise 5
 ;; Write a function bake-recipe which takes a recipe, performs all of the steps, and returns the cooling rack id where the item is placed.
 (defn bake-recipe [recipe]
-  (doseq [step (get recipe :steps)] 
-    (perform (get recipe :ingredients) step)))
+  (last
+   (for [step (get recipe :steps)] 
+     (perform (get recipe :ingredients) step))))
 
+
+(defn bake [item]
+  (let [recipes (get baking :recipes)]
+    (if (contains? recipes item)
+      (bake-recipe (get recipes item))
+      (error "I don't know how to bake" item))))
+
+
+;; Exercise 6
+;; Rewrite bake to use bake-recipe. It should still return the cooling rack id.
+(defn bake [item])
 
 (defn add-egg []
   (grab :egg)
