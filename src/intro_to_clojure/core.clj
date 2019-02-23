@@ -91,7 +91,11 @@
     :else
     (error "Unknown action" (first step))))
 
-
+;; Exercise 5
+;; Write a function bake-recipe which takes a recipe, performs all of the steps, and returns the cooling rack id where the item is placed.
+(defn bake-recipe [recipe]
+  (doseq [step (get recipe :steps)] 
+    (perform (get recipe :ingredients) step)))
 
 
 (defn add-egg []
