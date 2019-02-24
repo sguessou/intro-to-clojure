@@ -269,20 +269,26 @@
           (unload-amount ingredient amount))
         (error "I dont know how the ingredient" ingredient)))))
 
-
-(def locations {:pantry pantry-ingredients
-                :fridge fridge-ingredients})
+;; Exercise 12
+;; Rewrite fetch-list to remove the usage of the locations map and the sets pantry-ingredients and fridge-ingredients.
+;; Hint: Use group-by.
+(defn storage-location [item-amount]
+  (let [item (first item-amount)
+        ingredients (get baking :ingredients)
+        info (get ingredients item)]
+    (get info :storage)))
 
 (defn fetch-list [shopping-list]
-  (doseq [location (keys locations)]
-    (go-to location)
-    (doseq [ingredient (get locations location)]
-      (load-up-amount ingredient (get shopping-list ingredient 0))))
+  (let [locations (group-by storage-location shopping-list)]
+      (doseq [location (keys locations)]
+        (go-to location)
+        (doseq [item-amount (get locations location)]
+          (load-up-amount (first item-amount) (second item-amount))))
+      (go-to :prep-area)
+      (doseq [location (keys locations)]
+        (doseq [item-amount (get locations location)]
+          (unload-amount (first item-amount) (second item-amount))))))
 
-  (go-to :prep-area)
-  (doseq [location (keys locations)]
-    (doseq [ingredient (get locations location)]
-      (unload-amount ingredient (get shopping-list ingredient 0)))))
 
 (defn add-ingredients [a b]
   (merge-with + a b))
