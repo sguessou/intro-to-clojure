@@ -119,6 +119,31 @@
     :else
     (error "Unknown action" (first step))))
 
+;; Exercise 14
+;; We would like to replace the cond in perform with a map which follows the same pattern as the usage map we just wrote.
+;; Create a map actions where the keys are action names and the values are functions implementing those actions.
+(def actions {:cool (fn [ingredients step] (cool-pan))
+              :mix (fn [ingredients step] (mix))
+              :pour (fn [ingredients step] (pour-into-pan))
+              :bake (fn [ingredients step] (bake-pan (second step)))
+              :add (fn [ingredients step]
+                     (cond
+                       (and (= (count step) 2)
+                            (= (second step) :all))
+                       (doseq [kv ingredients]
+                         (add (first step) (second step)))
+                       (and (= (count step) 2)
+                            (contains? ingredients (second step)))
+                       (add (second step) (get ingredients (second step)))
+                       (= (count step) 3)
+                       (add (second step) (nth step 2))))})
+
+(defn perform [ingredients step]
+  (if (contains? (first step) actions)
+    (let [f (get actions (first step))]
+      (f ingredients step))
+    (error "Unknown action" (first step))))
+
 ;; Exercise 5
 ;; Write a function bake-recipe which takes a recipe, performs all of the steps, and returns the cooling rack id where the item is placed.
 (defn bake-recipe [recipe]
