@@ -340,22 +340,78 @@
     (for [kv ingredients]
       [(first kv) (* n (second kv))])))
 
+;; Exercise 8
+;; Modify order->ingredients to not refer to individual items in the code.
+;; Instead, it should use the meaning given to the name of the item in the baking database.
 (defn order->ingredients [order]
-  (let [items (get order :items)]
-    (add-ingredients
-      (multiply-ingredients (get items :cake 0) {:egg 2
-                                                 :flour 2
-                                                 :sugar 1
-                                                 :milk 1})
-      (multiply-ingredients (get items :cookie 0) {:egg 1
-                                                   :flour 1
-                                                   :butter 1
-                                                   :sugar 1}))))
+  (let [items (get order :items)
+        recipes (get baking :recipes)]
+    (reduce add-ingredients {}
+            (for [kv items]
+              (let [recipe (get recipes (first kv))
+                    ingredients (get recipe :ingredients)]
+                (multiply-ingredients (second kv) ingredients))))))
+
+;; Exercise 9
+;; Add a section to the baking database which contains information about all of our ingredients.
+;; It should say where to find the ingredients and how to add them.
+(def baking {:ingredients {:egg {:storage :fridge
+                                 :usage :squeezed}
+                           :milk {:storage :fridge
+                                  :usage :scooped}
+                           :butter {:storage :fridge
+                                    :usage :simple}
+                           :flour {:storage :pantry
+                                   :usage :scooped}
+                           :cocoa {:storage :pantry
+                                   :usage :scooped}
+                           :sugar {:storage :pantry
+                                   :usage :scooped}}
+             :recipes {:cake {:ingredients {:egg 2
+                                :flour 2
+                                :sugar 1
+                                :milk 1}
+                              :steps [[:add :all]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 25]
+                                      [:cool]]}
+
+                       :cookies {:ingredients {:egg 1
+                                               :flour 1
+                                               :sugar 1
+                                               :butter 1}
+                                 :steps [[:add :all]
+                                         [:mix]
+                                         [:pour]
+                                         [:bake 30]
+                                         [:cool]]}
+                       :brownies {:ingredients {:egg 2
+                                                :flour 2
+                                                :sugar 1
+                                                :cocoa 2
+                                                :milk 1
+                                                :butter 2}
+                                  :steps [[:add :butter]
+                                          [:add :sugar]
+                                          [:add :cocoa]
+                                          [:mix]
+                                          [:add :flour]
+                                          [:add :egg]
+                                          [:add :milk]
+                                          [:mix]
+                                          [:pour]
+                                          [:bake 35]
+                                          [:cool]]}}})
+
+
+
+
 
 (defn orders->ingredients [orders]
   (reduce add-ingredients {}
-    (for [order orders]
-      (order->ingredients order))))
+          (for [order orders]
+            (order->ingredients order))))
 
 (defn bake-cake []
   (add :egg 2)
@@ -398,7 +454,7 @@
             receipt {:orderid (get order :orderid)
                      :address (get order :address)
                      :rackids racks}]
-        (delivery receipt)))))
+        (delivery receipt))))))
 
 (defn bake-brownies []
   (add :sugar 1)
