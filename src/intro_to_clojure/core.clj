@@ -404,6 +404,23 @@
                                           [:bake 35]
                                           [:cool]]}}})
 
+;; Exercise 10 
+;; Rewrite scooped?, squeezed?, and simple? to use the new database instead of their existing sets.
+(defn scooped? [ingredient]
+  (let [ingredients (get baking :ingredients)
+        item (get ingredients ingredient)]
+      (= :scooped (get item :usage))))
+
+(defn squeezed? [ingredient]
+  (let [ingredients (get baking :ingredients)
+        item (get ingredients ingredient)]
+      (= :squeezed (get item :usage))))
+
+(defn simple? [ingredient]
+  (let [ingredients (get baking :ingredients)
+        item (get ingredients ingredient)]
+      (= :simple (get item :usage))))
+
 
 
 
