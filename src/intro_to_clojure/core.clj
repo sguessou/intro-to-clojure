@@ -190,58 +190,39 @@
     (add-butter))
   :ok)
 
-(defn add-squeezed
-  ([ingredient amount]
-   (if (squeezed? ingredient)
-     (do
-       (dotimes [i amount]
-         (grab ingredient)
-         (squeeze)
-         (add-to-bowl))
-       :ok)
-     (error "This function only works on squeezed ingredients. You asked me to squeeze" ingredient)))
-  ([ingredient]
-   (add-squeezed ingredient 1)))
+(def usage {:squeezed (fn [ingredient amount]
+                        (dotimes [i amount]
+                          (grab ingredient)
+                          (squeeze)
+                          (add-to-bowl)))
+            :simple (fn [ingredient amount]
+                      (dotimes [i amount]
+                        (grab ingredient)
+                        (add-to-bowl)))
+            :scooped (fn [ingredient amount]
+                       (grab :cup)
+                       (dotimes [i amount]
+                         (scoop ingredient)
+                         (add-to-bowl))
+                       (release))})
 
-(defn add-scooped
-  ([ingredient amount]
-   (if (scooped? ingredient)
-     (do
-       (dotimes [i amount]
-         (grab :cup)
-         (scoop ingredient)
-         (add-to-bowl)
-         (release))
-       :ok)
-     (error "This function only works on scooped ingredients. You asked me to scoop" ingredient)))
-  ([ingredient]
-   (add-scooped ingredient 1)))
-
-(defn add-simple
-  ([ingredient amount]
-   (if (simple? ingredient)
-     (do
-       (dotimes [i amount]
-         (grab ingredient)
-         (add-to-bowl))
-       :ok)
-     (error "This function only works on simple ingredients. You asked me to add" ingredient)))
-  ([ingredient]
-   (add-simple ingredient 1)))
+;; Exercise 13
+;; Rewrite add to use the new usage map.
+(defn usage-type [ingredient]
+  (let [ingredients (get baking :ingredients)
+        info (get ingredients ingredient)]
+    (get info :usage)))
 
 (defn add
   ([ingredient]
    (add ingredient 1))
   ([ingredient amount]
-   (cond
-     (squeezed? ingredient)
-     (add-squeezed ingredient amount)
-     (scooped? ingredient)
-     (add-scooped ingredient amount)
-     (simple? ingredient)
-     (add-simple ingredient amount)
-     :else
-     (error "I do not know the ingredient" ingredient))))
+   (let [ingredient-type (usage-type ingredient)]
+     (if (contains? usage ingredient-type)
+       (let [f (get usage ingredient-type)]
+         (f ingredient amount))
+       (error "I do not know the ingredient" ingredient)))))
+
 
 (defn load-up-amount [ingredient amount]
   (dotimes [i amount]
@@ -272,14 +253,13 @@
 ;; Exercise 12
 ;; Rewrite fetch-list to remove the usage of the locations map and the sets pantry-ingredients and fridge-ingredients.
 ;; Hint: Use group-by.
-(defn storage-location [item-amount]
-  (let [item (first item-amount)
-        ingredients (get baking :ingredients)
+(defn storage-location [item]
+  (let [ingredients (get baking :ingredients)
         info (get ingredients item)]
     (get info :storage)))
 
 (defn fetch-list [shopping-list]
-  (let [locations (group-by storage-location shopping-list)]
+  (let [locations (group-by (fn [item-amount] (storage-location (first item-amount))) shopping-list)]
       (doseq [location (keys locations)]
         (go-to location)
         (doseq [item-amount (get locations location)]
@@ -288,7 +268,6 @@
       (doseq [location (keys locations)]
         (doseq [item-amount (get locations location)]
           (unload-amount (first item-amount) (second item-amount))))))
-
 
 (defn add-ingredients [a b]
   (merge-with + a b))
