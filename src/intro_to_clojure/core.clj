@@ -165,21 +165,6 @@
   (grab :butter)
   (add-to-bowl))
 
-(def scooped-ingredients #{:flour :sugar :milk :cocoa})
-
-(defn scooped? [ingredient]
-  (contains? scooped-ingredients ingredient))
-
-(def squeezed-ingredients #{:egg})
-
-(defn squeezed? [ingredient]
-  (contains? squeezed-ingredients ingredient))
-
-(def simple-ingredients #{:butter})
-
-(defn simple? [ingredient]
-  (contains? simple-ingredients ingredient))
-
 (defn add-eggs [n]
   (dotimes [e n]
     (add-egg))
@@ -258,58 +243,6 @@
      :else
      (error "I do not know the ingredient" ingredient))))
 
-(def pantry-ingredients #{:flour :sugar :cocoa})
-
-(defn from-pantry? [ingredient]
-  (contains? pantry-ingredients ingredient))
-
-(def fridge-ingredients #{:milk :egg :butter})
-
-(defn from-fridge? [ingredient]
-  (contains? fridge-ingredients ingredient))
-
-(defn fetch-from-pantry
-  ([ingredient]
-    (fetch-from-pantry ingredient 1))
-  ([ingredient amount]
-    (if (from-pantry? ingredient)
-      (do
-        (go-to :pantry)
-        (dotimes [i amount]
-          (load-up ingredient))
-        (go-to :prep-area)
-        (dotimes [i amount]
-          (unload ingredient)))
-      (error "This function only works on ingredients that are stored in the pantry. You asked me to fetch" ingredient))))
-
-(defn fetch-from-fridge
-  ([ingredient]
-    (fetch-from-fridge ingredient 1))
-  ([ingredient amount]
-    (if (from-fridge? ingredient)
-      (do
-        (go-to :fridge)
-        (dotimes [i amount]
-          (load-up ingredient))
-        (go-to :prep-area)
-        (dotimes [i amount]
-          (unload ingredient)))
-      (error "This function only works on ingredients that are stored in the fridge. You asked me to fetch" ingredient))))
-
-(defn fetch-ingredient
-  ([ingredient]
-    (fetch-ingredient ingredient 1))
-  ([ingredient amount]
-    (cond
-      (from-fridge? ingredient)
-      (fetch-from-fridge ingredient amount)
-
-      (from-pantry? ingredient)
-      (fetch-from-pantry ingredient amount)
-
-      :else
-      (error "I don't know where to get" ingredient))))
-
 (defn load-up-amount [ingredient amount]
   (dotimes [i amount]
     (load-up ingredient)))
@@ -317,6 +250,25 @@
 (defn unload-amount [ingredient amount]
   (dotimes [i amount]
     (unload ingredient)))
+
+;; Exercise 11
+;; There is a duplication between fetch-from-pantry and fetch-from-fridge.
+;; Rewrite fetch-ingredient to not use these functions.
+;; Then get rid of fetch-from-pantry and fetch-from-fridge.
+(defn fetch-ingredient
+  ([ingredient]
+    (fetch-ingredient ingredient 1))
+  ([ingredient amount]
+    (let [ingredients (get baking :ingredients)
+         info (get ingredients ingredient)]
+      (if (contains? ingredients ingredient)
+        (do
+          (go-to (get info :storage))
+          (load-up-amount ingredient amount)
+          (go-to :prep-area)
+          (unload-amount ingredient amount))
+        (error "I dont know how the ingredient" ingredient)))))
+
 
 (def locations {:pantry pantry-ingredients
                 :fridge fridge-ingredients})
@@ -420,9 +372,6 @@
   (let [ingredients (get baking :ingredients)
         item (get ingredients ingredient)]
       (= :simple (get item :usage))))
-
-
-
 
 
 (defn orders->ingredients [orders]
