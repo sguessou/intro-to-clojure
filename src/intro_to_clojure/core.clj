@@ -5,6 +5,8 @@
   (apply println args)
   :error)
 
+;; Exercise 7
+;; Add a recipe for every baked good X5 has learned so far.
 (def baking {:recipes {:cake {:ingredients {:egg 2
                                             :flour 2
                                             :sugar 1
@@ -13,7 +15,33 @@
                                       [:mix]
                                       [:pour]
                                       [:bake 25]
-                                      [:cool]]}}})
+                                      [:cool]]}
+                       {:cookies {:ingredients {:egg 1
+                                               :flour 1
+                                               :sugar 1
+                                               :butter 1}
+                              :steps [[:add :all]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 30]
+                                      [:cool]]}}
+                       {:brownies {:ingredients {:egg 2
+                                                :flour 2
+                                                :sugar 1
+                                                :cocoa 2
+                                                :milk 1
+                                                :butter 2}
+                              :steps [[:add :butter]
+                                      [:add :sugar]
+                                      [:add :cocoa]
+                                      [:mix]
+                                      [:add :flour]
+                                      [:add :egg]
+                                      [:add :milk]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 35]
+                                      [:cool]]}}}})
 
 ;; Exercise 1
 ;; Write a function perform that takes a vector as argument. If the first element of the vector is :cool, run cool-pan.
@@ -91,8 +119,24 @@
     :else
     (error "Unknown action" (first step))))
 
+;; Exercise 5
+;; Write a function bake-recipe which takes a recipe, performs all of the steps, and returns the cooling rack id where the item is placed.
+(defn bake-recipe [recipe]
+  (last
+   (for [step (get recipe :steps)] 
+     (perform (get recipe :ingredients) step))))
 
 
+(defn bake [item]
+  (let [recipes (get baking :recipes)]
+    (if (contains? recipes item)
+      (bake-recipe (get recipes item))
+      (error "I don't know how to bake" item))))
+
+
+;; Exercise 6
+;; Rewrite bake to use bake-recipe. It should still return the cooling rack id.
+(defn bake [item])
 
 (defn add-egg []
   (grab :egg)
@@ -120,21 +164,6 @@
 (defn add-butter []
   (grab :butter)
   (add-to-bowl))
-
-(def scooped-ingredients #{:flour :sugar :milk :cocoa})
-
-(defn scooped? [ingredient]
-  (contains? scooped-ingredients ingredient))
-
-(def squeezed-ingredients #{:egg})
-
-(defn squeezed? [ingredient]
-  (contains? squeezed-ingredients ingredient))
-
-(def simple-ingredients #{:butter})
-
-(defn simple? [ingredient]
-  (contains? simple-ingredients ingredient))
 
 (defn add-eggs [n]
   (dotimes [e n]
@@ -214,58 +243,6 @@
      :else
      (error "I do not know the ingredient" ingredient))))
 
-(def pantry-ingredients #{:flour :sugar :cocoa})
-
-(defn from-pantry? [ingredient]
-  (contains? pantry-ingredients ingredient))
-
-(def fridge-ingredients #{:milk :egg :butter})
-
-(defn from-fridge? [ingredient]
-  (contains? fridge-ingredients ingredient))
-
-(defn fetch-from-pantry
-  ([ingredient]
-    (fetch-from-pantry ingredient 1))
-  ([ingredient amount]
-    (if (from-pantry? ingredient)
-      (do
-        (go-to :pantry)
-        (dotimes [i amount]
-          (load-up ingredient))
-        (go-to :prep-area)
-        (dotimes [i amount]
-          (unload ingredient)))
-      (error "This function only works on ingredients that are stored in the pantry. You asked me to fetch" ingredient))))
-
-(defn fetch-from-fridge
-  ([ingredient]
-    (fetch-from-fridge ingredient 1))
-  ([ingredient amount]
-    (if (from-fridge? ingredient)
-      (do
-        (go-to :fridge)
-        (dotimes [i amount]
-          (load-up ingredient))
-        (go-to :prep-area)
-        (dotimes [i amount]
-          (unload ingredient)))
-      (error "This function only works on ingredients that are stored in the fridge. You asked me to fetch" ingredient))))
-
-(defn fetch-ingredient
-  ([ingredient]
-    (fetch-ingredient ingredient 1))
-  ([ingredient amount]
-    (cond
-      (from-fridge? ingredient)
-      (fetch-from-fridge ingredient amount)
-
-      (from-pantry? ingredient)
-      (fetch-from-pantry ingredient amount)
-
-      :else
-      (error "I don't know where to get" ingredient))))
-
 (defn load-up-amount [ingredient amount]
   (dotimes [i amount]
     (load-up ingredient)))
@@ -273,6 +250,25 @@
 (defn unload-amount [ingredient amount]
   (dotimes [i amount]
     (unload ingredient)))
+
+;; Exercise 11
+;; There is a duplication between fetch-from-pantry and fetch-from-fridge.
+;; Rewrite fetch-ingredient to not use these functions.
+;; Then get rid of fetch-from-pantry and fetch-from-fridge.
+(defn fetch-ingredient
+  ([ingredient]
+    (fetch-ingredient ingredient 1))
+  ([ingredient amount]
+    (let [ingredients (get baking :ingredients)
+         info (get ingredients ingredient)]
+      (if (contains? ingredients ingredient)
+        (do
+          (go-to (get info :storage))
+          (load-up-amount ingredient amount)
+          (go-to :prep-area)
+          (unload-amount ingredient amount))
+        (error "I dont know how the ingredient" ingredient)))))
+
 
 (def locations {:pantry pantry-ingredients
                 :fridge fridge-ingredients})
@@ -296,22 +292,92 @@
     (for [kv ingredients]
       [(first kv) (* n (second kv))])))
 
+;; Exercise 8
+;; Modify order->ingredients to not refer to individual items in the code.
+;; Instead, it should use the meaning given to the name of the item in the baking database.
 (defn order->ingredients [order]
-  (let [items (get order :items)]
-    (add-ingredients
-      (multiply-ingredients (get items :cake 0) {:egg 2
-                                                 :flour 2
-                                                 :sugar 1
-                                                 :milk 1})
-      (multiply-ingredients (get items :cookie 0) {:egg 1
-                                                   :flour 1
-                                                   :butter 1
-                                                   :sugar 1}))))
+  (let [items (get order :items)
+        recipes (get baking :recipes)]
+    (reduce add-ingredients {}
+            (for [kv items]
+              (let [recipe (get recipes (first kv))
+                    ingredients (get recipe :ingredients)]
+                (multiply-ingredients (second kv) ingredients))))))
+
+;; Exercise 9
+;; Add a section to the baking database which contains information about all of our ingredients.
+;; It should say where to find the ingredients and how to add them.
+(def baking {:ingredients {:egg {:storage :fridge
+                                 :usage :squeezed}
+                           :milk {:storage :fridge
+                                  :usage :scooped}
+                           :butter {:storage :fridge
+                                    :usage :simple}
+                           :flour {:storage :pantry
+                                   :usage :scooped}
+                           :cocoa {:storage :pantry
+                                   :usage :scooped}
+                           :sugar {:storage :pantry
+                                   :usage :scooped}}
+             :recipes {:cake {:ingredients {:egg 2
+                                :flour 2
+                                :sugar 1
+                                :milk 1}
+                              :steps [[:add :all]
+                                      [:mix]
+                                      [:pour]
+                                      [:bake 25]
+                                      [:cool]]}
+
+                       :cookies {:ingredients {:egg 1
+                                               :flour 1
+                                               :sugar 1
+                                               :butter 1}
+                                 :steps [[:add :all]
+                                         [:mix]
+                                         [:pour]
+                                         [:bake 30]
+                                         [:cool]]}
+                       :brownies {:ingredients {:egg 2
+                                                :flour 2
+                                                :sugar 1
+                                                :cocoa 2
+                                                :milk 1
+                                                :butter 2}
+                                  :steps [[:add :butter]
+                                          [:add :sugar]
+                                          [:add :cocoa]
+                                          [:mix]
+                                          [:add :flour]
+                                          [:add :egg]
+                                          [:add :milk]
+                                          [:mix]
+                                          [:pour]
+                                          [:bake 35]
+                                          [:cool]]}}})
+
+;; Exercise 10 
+;; Rewrite scooped?, squeezed?, and simple? to use the new database instead of their existing sets.
+(defn scooped? [ingredient]
+  (let [ingredients (get baking :ingredients)
+        item (get ingredients ingredient)]
+      (= :scooped (get item :usage))))
+
+(defn squeezed? [ingredient]
+  (let [ingredients (get baking :ingredients)
+        item (get ingredients ingredient)]
+      (= :squeezed (get item :usage))))
+
+(defn simple? [ingredient]
+  (let [ingredients (get baking :ingredients)
+        item (get ingredients ingredient)]
+      (= :simple (get item :usage))))
+
 
 (defn orders->ingredients [orders]
   (reduce add-ingredients {}
-    (for [order orders]
-      (order->ingredients order))))
+          (for [order orders]
+            (order->ingredients order))))
 
 (defn bake-cake []
   (add :egg 2)
@@ -354,7 +420,7 @@
             receipt {:orderid (get order :orderid)
                      :address (get order :address)
                      :rackids racks}]
-        (delivery receipt)))))
+        (delivery receipt))))))
 
 (defn bake-brownies []
   (add :sugar 1)
