@@ -138,11 +138,12 @@
                        (= (count step) 3)
                        (add (second step) (nth step 2))))})
 
+;; Exercise 15
+;; Rewrite perform to use the new actions map.
 (defn perform [ingredients step]
-  (if (contains? (first step) actions)
-    (let [f (get actions (first step))]
-      (f ingredients step))
-    (error "Unknown action" (first step))))
+  (let [f (get actions (first step) (fn [ingredients step] 
+                                      (error "Unknown action" (first step))))]
+    (f ingredients step)))
 
 ;; Exercise 5
 ;; Write a function bake-recipe which takes a recipe, performs all of the steps, and returns the cooling rack id where the item is placed.
