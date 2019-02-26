@@ -119,6 +119,32 @@
     :else
     (error "Unknown action" (first step))))
 
+;; Exercise 14
+;; We would like to replace the cond in perform with a map which follows the same pattern as the usage map we just wrote.
+;; Create a map actions where the keys are action names and the values are functions implementing those actions.
+(def actions {:cool (fn [ingredients step] (cool-pan))
+              :mix (fn [ingredients step] (mix))
+              :pour (fn [ingredients step] (pour-into-pan))
+              :bake (fn [ingredients step] (bake-pan (second step)))
+              :add (fn [ingredients step]
+                     (cond
+                       (and (= (count step) 2)
+                            (= (second step) :all))
+                       (doseq [kv ingredients]
+                         (add (first step) (second step)))
+                       (and (= (count step) 2)
+                            (contains? ingredients (second step)))
+                       (add (second step) (get ingredients (second step)))
+                       (= (count step) 3)
+                       (add (second step) (nth step 2))))})
+
+;; Exercise 15
+;; Rewrite perform to use the new actions map.
+(defn perform [ingredients step]
+  (let [f (get actions (first step) (fn [ingredients step] 
+                                      (error "Unknown action" (first step))))]
+    (f ingredients step)))
+
 ;; Exercise 5
 ;; Write a function bake-recipe which takes a recipe, performs all of the steps, and returns the cooling rack id where the item is placed.
 (defn bake-recipe [recipe]
@@ -190,58 +216,39 @@
     (add-butter))
   :ok)
 
-(defn add-squeezed
-  ([ingredient amount]
-   (if (squeezed? ingredient)
-     (do
-       (dotimes [i amount]
-         (grab ingredient)
-         (squeeze)
-         (add-to-bowl))
-       :ok)
-     (error "This function only works on squeezed ingredients. You asked me to squeeze" ingredient)))
-  ([ingredient]
-   (add-squeezed ingredient 1)))
+(def usage {:squeezed (fn [ingredient amount]
+                        (dotimes [i amount]
+                          (grab ingredient)
+                          (squeeze)
+                          (add-to-bowl)))
+            :simple (fn [ingredient amount]
+                      (dotimes [i amount]
+                        (grab ingredient)
+                        (add-to-bowl)))
+            :scooped (fn [ingredient amount]
+                       (grab :cup)
+                       (dotimes [i amount]
+                         (scoop ingredient)
+                         (add-to-bowl))
+                       (release))})
 
-(defn add-scooped
-  ([ingredient amount]
-   (if (scooped? ingredient)
-     (do
-       (dotimes [i amount]
-         (grab :cup)
-         (scoop ingredient)
-         (add-to-bowl)
-         (release))
-       :ok)
-     (error "This function only works on scooped ingredients. You asked me to scoop" ingredient)))
-  ([ingredient]
-   (add-scooped ingredient 1)))
-
-(defn add-simple
-  ([ingredient amount]
-   (if (simple? ingredient)
-     (do
-       (dotimes [i amount]
-         (grab ingredient)
-         (add-to-bowl))
-       :ok)
-     (error "This function only works on simple ingredients. You asked me to add" ingredient)))
-  ([ingredient]
-   (add-simple ingredient 1)))
+;; Exercise 13
+;; Rewrite add to use the new usage map.
+(defn usage-type [ingredient]
+  (let [ingredients (get baking :ingredients)
+        info (get ingredients ingredient)]
+    (get info :usage)))
 
 (defn add
   ([ingredient]
    (add ingredient 1))
   ([ingredient amount]
-   (cond
-     (squeezed? ingredient)
-     (add-squeezed ingredient amount)
-     (scooped? ingredient)
-     (add-scooped ingredient amount)
-     (simple? ingredient)
-     (add-simple ingredient amount)
-     :else
-     (error "I do not know the ingredient" ingredient))))
+   (let [ingredient-type (usage-type ingredient)]
+     (if (contains? usage ingredient-type)
+       (let [f (get usage ingredient-type)]
+         (f ingredient amount))
+       (error "I do not know the ingredient" ingredient)))))
+
 
 (defn load-up-amount [ingredient amount]
   (dotimes [i amount]
@@ -269,20 +276,24 @@
           (unload-amount ingredient amount))
         (error "I dont know how the ingredient" ingredient)))))
 
-
-(def locations {:pantry pantry-ingredients
-                :fridge fridge-ingredients})
+;; Exercise 12
+;; Rewrite fetch-list to remove the usage of the locations map and the sets pantry-ingredients and fridge-ingredients.
+;; Hint: Use group-by.
+(defn storage-location [item]
+  (let [ingredients (get baking :ingredients)
+        info (get ingredients item)]
+    (get info :storage)))
 
 (defn fetch-list [shopping-list]
-  (doseq [location (keys locations)]
-    (go-to location)
-    (doseq [ingredient (get locations location)]
-      (load-up-amount ingredient (get shopping-list ingredient 0))))
-
-  (go-to :prep-area)
-  (doseq [location (keys locations)]
-    (doseq [ingredient (get locations location)]
-      (unload-amount ingredient (get shopping-list ingredient 0)))))
+  (let [locations (group-by (fn [item-amount] (storage-location (first item-amount))) shopping-list)]
+      (doseq [location (keys locations)]
+        (go-to location)
+        (doseq [item-amount (get locations location)]
+          (load-up-amount (first item-amount) (second item-amount))))
+      (go-to :prep-area)
+      (doseq [location (keys locations)]
+        (doseq [item-amount (get locations location)]
+          (unload-amount (first item-amount) (second item-amount))))))
 
 (defn add-ingredients [a b]
   (merge-with + a b))
