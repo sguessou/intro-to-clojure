@@ -82,3 +82,17 @@
 
 (length* (range 17))
 
+;; Example 7: map & filter with loop
+(defn map* [f ls]
+  (loop [ls ls acc []]
+    (if empty? ls)
+    acc
+    (recur (rest ls) (conj acc (f (first ls))))))
+
+(defn filter* [p? ls]
+  (loop [ls ls acc []]
+    (if (empty? ls)
+      acc
+      (if (p? (first ls))
+        (recur (rest ls) (conj acc (first ls)))
+        (recur (rest ls) acc)))))
