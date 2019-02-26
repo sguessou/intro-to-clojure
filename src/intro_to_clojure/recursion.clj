@@ -47,4 +47,16 @@
       (cons (first ls) (filter* p? (rest ls)))
       (recur p? (rest ls)))))
 
+;; Example 4: filter with tail recursion
+(defn filter*-helper [p? ls acc]
+  (if (empty? ls)
+    acc
+    (if (p? (first ls))
+      (recur p? (rest ls) (conj acc (first ls)))
+      (recur p? (rest ls) acc))))
+
+(defn filter* [p? ls]
+  (filter*-helper p? ls []))
+
+(filter* even? (range 10))
 
