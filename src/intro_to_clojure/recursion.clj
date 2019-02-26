@@ -70,3 +70,15 @@
   (map*-helper f ls []))
 
 (map* inc (range 20))
+
+;; Example 6: length with tail recursion
+(defn length*-helper [ls acc]
+  (if (empty? ls)
+    acc
+    (recur (rest ls) (+ 1 acc))))
+
+(defn length* [ls]
+  (length*-helper ls 0))
+
+(length* (range 17))
+
