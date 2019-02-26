@@ -60,3 +60,39 @@
 
 (filter* even? (range 10))
 
+;; Example 5: map with tail recursion
+(defn map*-helper [f ls acc]
+  (if (empty? ls)
+    acc
+    (recur f (rest ls) (conj acc (f (first ls))))))
+
+(defn map* [f ls]
+  (map*-helper f ls []))
+
+(map* inc (range 20))
+
+;; Example 6: length with tail recursion
+(defn length*-helper [ls acc]
+  (if (empty? ls)
+    acc
+    (recur (rest ls) (+ 1 acc))))
+
+(defn length* [ls]
+  (length*-helper ls 0))
+
+(length* (range 17))
+
+;; Example 7: map & filter with loop
+(defn map* [f ls]
+  (loop [ls ls acc []]
+    (if empty? ls)
+    acc
+    (recur (rest ls) (conj acc (f (first ls))))))
+
+(defn filter* [p? ls]
+  (loop [ls ls acc []]
+    (if (empty? ls)
+      acc
+      (if (p? (first ls))
+        (recur (rest ls) (conj acc (first ls)))
+        (recur (rest ls) acc)))))
