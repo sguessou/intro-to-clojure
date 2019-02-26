@@ -38,3 +38,13 @@
 (filter* even? (range 50))
 (filter* nil? (range 10))
 (filter* (complement nil?) (range 10))
+
+;; Example 3: recursion types (tail recursion & non tail recursion)
+(defn filter* [p? ls]
+  (if (empty? ls)
+    ()
+    (if (p? (first ls))
+      (cons (first ls) (filter* p? (rest ls)))
+      (recur p? (rest ls)))))
+
+
