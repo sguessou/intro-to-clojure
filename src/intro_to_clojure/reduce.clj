@@ -39,3 +39,24 @@
 (reduce-kv (fn [m k v]
              (assoc m k v))
            {} (vec "hello-world!"))
+
+;; reduced example
+(defn longer-than? [n coll]
+  (> (reduce (fn [res _]
+             (let [res (inc res)]
+               (if (> res n)
+                 (reduced res)
+                 res)))
+           0 coll)
+     n))
+
+(longer-than? 3 [1 3 4 4])
+
+(defn shorter-than? [n coll]
+  (not (longer-than? n coll)))
+
+(shorter-than? 5 [1 2 3])
+
+(def shorter-than? (complement longer-than?))
+
+(shorter-than? 5 [1 3 4 5 6 7])
