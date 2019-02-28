@@ -16,3 +16,13 @@
           [] ls))
 
 (map* inc (range 5))
+
+;; Implementing filter with reduce
+(defn filter* [f ls]
+  (reduce (fn [res v]
+            (if (f v)
+              (conj res v)
+              res))
+          [] ls))
+
+(filter even? (range 10))
