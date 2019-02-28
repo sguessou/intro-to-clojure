@@ -26,3 +26,16 @@
           [] ls))
 
 (filter even? (range 10))
+
+;; reduce-kv example
+(reduce-kv (fn [[kcount vcount] k v]
+             [(+ kcount (count k))
+              (+ vcount (count v))])
+           [0 0] {"Saad" "Guessous"
+                  "Elias" "Guessous"
+                  "Isak" "Guessous"
+                  "Lia" "Markelin"})
+
+(reduce-kv (fn [m k v]
+             (assoc m k v))
+           {} (vec "hello-world!"))
