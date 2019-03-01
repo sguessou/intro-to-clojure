@@ -71,3 +71,19 @@
 (postal-code person)
 ((comp :postal-code :address) person)
 (map (comp :postal-code :address) [person])
+
+;; juxt
+(def person {:first "Saad"
+             :last "Guessous"})
+
+(def first-and-last (juxt :first :last))
+
+(first-and-last person)
+
+(defn juxt* [f g]
+  (fn [x]
+    [(f x) (g x)]))
+
+(defn juxt* [& fs]
+  (fn [x]
+    (mapv (fn [f] (f x)) fs)))
