@@ -59,3 +59,15 @@
           (update counts word (fnil inc 0)))
         {}
         words)
+
+;; comp -- function composition
+(def person {:name "Luke Skywalker"
+             :address {:street "22 Skywalker Way"
+                       :planer "Tatouine"
+                       :postal-code "01600T"}})
+
+(defn postal-code [person]
+  (:postal-code (:address person)))
+(postal-code person)
+((comp :postal-code :address) person)
+(map (comp :postal-code :address) [person])
