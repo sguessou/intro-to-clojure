@@ -87,3 +87,11 @@
 (defn juxt* [& fs]
   (fn [x]
     (mapv (fn [f] (f x)) fs)))
+
+;; apply
+(apply + [1 2 3])
+
+(defn apply* [f args]
+  (if (seq args)
+    (recur (partial f (first args)) (rest args))
+    (f)))
