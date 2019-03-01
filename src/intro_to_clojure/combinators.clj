@@ -39,3 +39,23 @@
   (fn [& ys]
     (apply f (concat xs ys))))
 
+;; fnil
+(def inc-default0 (fnil inc 0))
+(inc-default0 nil)
+
+(defn inc-default0 [x]
+  (if (nil? x)
+    (inc 0)
+    (inc x)))
+
+(defn fnil* [f default]
+  (fn [x & xs]
+    (if (nil? x)
+      (apply f default xs)
+      (apply f x xs))))
+
+(def words (clojure.string/split "Some of these words are repeated. Some are not." #"\W"))
+(reduce (fn [counts word]
+          (update counts word (fnil inc 0)))
+        {}
+        words)
